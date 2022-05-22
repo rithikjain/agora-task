@@ -10,4 +10,5 @@ data class User(
     val online: Boolean = false,
     val createdAt: Long = System.currentTimeMillis(),
     val lastOnline: Long = System.currentTimeMillis(),
+    val inCall: Boolean = false,
 )

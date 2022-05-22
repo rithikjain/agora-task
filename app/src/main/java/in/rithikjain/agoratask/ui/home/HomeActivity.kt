@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
@@ -24,8 +25,8 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var currentUser: FirebaseUser
     private val viewModel: HomeViewModel by viewModels()
+    private val onlineUsersAdapter = OnlineUsersAdapter()
 
-    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -38,8 +39,7 @@ class HomeActivity : AppCompatActivity() {
         }
 
         initObservers()
-
-        binding.greetingTextView.text = "Hi, ${viewModel.getUsername()}!"
+        setupViews()
     }
 
     override fun onStart() {
@@ -54,9 +54,21 @@ class HomeActivity : AppCompatActivity() {
         viewModel.setUserOffline(currentUser.uid)
     }
 
+    @SuppressLint("SetTextI18n")
+    private fun setupViews() {
+        binding.greetingTextView.text = "Hi, ${viewModel.getUsername()}!"
+
+        binding.onlineUsersRecyclerView.apply {
+            adapter = onlineUsersAdapter
+            layoutManager =
+                LinearLayoutManager(this@HomeActivity, LinearLayoutManager.VERTICAL, false)
+        }
+    }
+
     private fun initObservers() {
         viewModel.onlineUsers.observe(this) {
             Log.d(TAG, it.toString())
+            onlineUsersAdapter.updateOnlineUsers(it)
         }
     }
 }

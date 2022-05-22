@@ -11,4 +11,5 @@
     <string name="already_have_an_account_sign_in"><u>Already have an account? Sign in.</u></string>
     <string name="username">Username</string>
     <string name="online_users">These are the online users:</string>
+    <string name="ring">Ring</string>
 </resources>
