@@ -8,7 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 
-class OnlineUsersAdapter : RecyclerView.Adapter<OnlineUsersAdapter.ViewHolder>() {
+class OnlineUsersAdapter(private val onRingClick: (User) -> Unit) :
+    RecyclerView.Adapter<OnlineUsersAdapter.ViewHolder>() {
 
     private var onlineUsers = mutableListOf<User>()
 
@@ -17,7 +18,8 @@ class OnlineUsersAdapter : RecyclerView.Adapter<OnlineUsersAdapter.ViewHolder>()
         notifyDataSetChanged()
     }
 
-    inner class ViewHolder(private val binding: OnlineUserItemBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(private val binding: OnlineUserItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
         fun bind(user: User) {
             binding.usernameTextView.text = user.username
@@ -29,6 +31,9 @@ class OnlineUsersAdapter : RecyclerView.Adapter<OnlineUsersAdapter.ViewHolder>()
                 binding.statusTextView.text = "• Available"
                 binding.statusTextView.setTextColor(Color.parseColor("#006400"))
                 binding.ringButton.visibility = View.VISIBLE
+            }
+            binding.ringButton.setOnClickListener {
+                onRingClick(user)
             }
         }
     }

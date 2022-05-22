@@ -1,6 +1,6 @@
 package `in`.rithikjain.agoratask.di
 
-import `in`.rithikjain.agoratask.agora.RTMEventListener
+import `in`.rithikjain.agoratask.agora.EngineEventListener
 import `in`.rithikjain.agoratask.repository.UserRepository
 import `in`.rithikjain.agoratask.utils.PrefHelper
 import android.content.Context
@@ -13,6 +13,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import io.agora.rtm.RtmCallManager
 import io.agora.rtm.RtmClient
 import javax.inject.Singleton
 
@@ -35,14 +36,25 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun provideGetRTMEventListener() = RTMEventListener()
+    fun provideEngineEventListener() = EngineEventListener()
 
     @Singleton
     @Provides
     fun provideRTMClient(
         @ApplicationContext context: Context,
-        rtmEventListener: RTMEventListener
+        engineEventListener: EngineEventListener
     ): RtmClient =
-        RtmClient.createInstance(context, agoraAppID, rtmEventListener)
+        RtmClient.createInstance(context, agoraAppID, engineEventListener)
+
+    @Singleton
+    @Provides
+    fun provideRTMCallManager(
+        rtmClient: RtmClient,
+        engineEventListener: EngineEventListener
+    ): RtmCallManager {
+        val callManager = rtmClient.rtmCallManager
+        callManager.setEventListener(engineEventListener)
+        return callManager
+    }
 
 }

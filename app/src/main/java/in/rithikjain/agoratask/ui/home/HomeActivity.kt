@@ -1,14 +1,17 @@
 package `in`.rithikjain.agoratask.ui.home
 
 import `in`.rithikjain.agoratask.agora.AgoraEventListener
-import `in`.rithikjain.agoratask.agora.RTMEventListener
+import `in`.rithikjain.agoratask.agora.EngineEventListener
 import `in`.rithikjain.agoratask.databinding.ActivityHomeBinding
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
@@ -29,13 +32,19 @@ class HomeActivity : AppCompatActivity(), AgoraEventListener {
     private lateinit var auth: FirebaseAuth
     private lateinit var currentUser: FirebaseUser
     private val viewModel: HomeViewModel by viewModels()
-    private val onlineUsersAdapter = OnlineUsersAdapter()
+    private lateinit var onlineUsersAdapter: OnlineUsersAdapter
 
     @Inject
     lateinit var rtmClient: RtmClient
 
     @Inject
-    lateinit var rtmEventListener: RTMEventListener
+    lateinit var engineEventListener: EngineEventListener
+
+    @Inject
+    lateinit var rtmCallManager: RtmCallManager
+
+    private var ringingDialog: AlertDialog? = null
+    private var receivingCallDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,6 +80,10 @@ class HomeActivity : AppCompatActivity(), AgoraEventListener {
     private fun setupViews() {
         binding.greetingTextView.text = "Hi, ${viewModel.getUsername()}!"
 
+        onlineUsersAdapter = OnlineUsersAdapter {
+            callUser(it.username)
+        }
+
         binding.onlineUsersRecyclerView.apply {
             adapter = onlineUsersAdapter
             layoutManager =
@@ -79,7 +92,7 @@ class HomeActivity : AppCompatActivity(), AgoraEventListener {
     }
 
     private fun setupListeners() {
-        rtmEventListener.registerEventListener(this)
+        engineEventListener.registerEventListener(this)
     }
 
     private fun initObservers() {
@@ -89,7 +102,61 @@ class HomeActivity : AppCompatActivity(), AgoraEventListener {
         }
     }
 
+    private fun callUser(username: String) {
+        val invitation = rtmCallManager.createLocalInvitation(username)
+        invitation.channelId = username
+
+        rtmCallManager.sendLocalInvitation(invitation, null)
+
+        ringingDialog = MaterialAlertDialogBuilder(this)
+            .setTitle("Ringing $username...")
+            .setNegativeButton("Cancel") { dialog, _ ->
+                rtmCallManager.cancelLocalInvitation(invitation, null)
+                dialog.dismiss()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
     override fun onMessageReceived(message: RtmMessage?, p1: String?) {
         Log.d(TAG, message?.text.toString())
+    }
+
+    override fun onRemoteInvitationReceived(p0: RemoteInvitation?) {
+        runOnUiThread {
+            receivingCallDialog = MaterialAlertDialogBuilder(this)
+                .setTitle("Getting a call from ${p0?.callerId}...")
+                .setNegativeButton("Decline") { dialog, _ ->
+                    rtmCallManager.refuseRemoteInvitation(p0, null)
+                    dialog.dismiss()
+                }
+                .setPositiveButton("Answer") { dialog, _ ->
+                    rtmCallManager.acceptRemoteInvitation(p0, null)
+                    dialog.dismiss()
+                }
+                .setCancelable(false)
+                .show()
+        }
+    }
+
+    override fun onRemoteInvitationCanceled(p0: RemoteInvitation?) {
+        runOnUiThread {
+            receivingCallDialog?.dismiss()
+            Toast.makeText(this, "Call Invitation Cancelled", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onLocalInvitationAccepted(p0: LocalInvitation?, p1: String?) {
+        runOnUiThread {
+            ringingDialog?.dismiss()
+            Toast.makeText(this, "Call Accepted", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onLocalInvitationRefused(p0: LocalInvitation?, p1: String?) {
+        runOnUiThread {
+            ringingDialog?.dismiss()
+            Toast.makeText(this, "Call Declined", Toast.LENGTH_SHORT).show()
+        }
     }
 }
