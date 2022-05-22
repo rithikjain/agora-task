@@ -1,6 +1,7 @@
 package `in`.rithikjain.agoratask.ui.auth
 
 import `in`.rithikjain.agoratask.databinding.ActivitySignInBinding
+import `in`.rithikjain.agoratask.repository.UserRepository
 import `in`.rithikjain.agoratask.ui.home.HomeActivity
 import android.content.Intent
 import android.os.Bundle
@@ -10,7 +11,10 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class SignInActivity : AppCompatActivity() {
 
     companion object {
@@ -19,6 +23,9 @@ class SignInActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySignInBinding
     private lateinit var auth: FirebaseAuth
+
+    @Inject
+    lateinit var userRepo: UserRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,7 +68,12 @@ class SignInActivity : AppCompatActivity() {
                     Log.d(TAG, "signInWithEmail:success")
                     val user = auth.currentUser
 
-                    navigateToHomeScreen()
+                    userRepo.getUser(user!!.uid) {
+                        userRepo.saveUIDSharedPref(it.uid)
+                        userRepo.saveUsernameSharedPref(it.username)
+
+                        navigateToHomeScreen()
+                    }
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "signInWithEmail:failure", task.exception)

@@ -77,6 +77,8 @@ class SignUpActivity : AppCompatActivity() {
 
                     val user = User(currUser!!.uid, username, email, true)
                     userRepo.saveUser(user)
+                    userRepo.saveUIDSharedPref(currUser.uid)
+                    userRepo.saveUsernameSharedPref(username)
 
                     navigateToHomeScreen()
                 } else {
