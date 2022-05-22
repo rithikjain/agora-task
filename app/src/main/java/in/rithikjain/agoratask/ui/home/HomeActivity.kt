@@ -1,5 +1,7 @@
 package `in`.rithikjain.agoratask.ui.home
 
+import `in`.rithikjain.agoratask.agora.AgoraEventListener
+import `in`.rithikjain.agoratask.agora.RTMEventListener
 import `in`.rithikjain.agoratask.databinding.ActivityHomeBinding
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -12,9 +14,11 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
+import io.agora.rtm.*
+import javax.inject.Inject
 
 @AndroidEntryPoint
-class HomeActivity : AppCompatActivity() {
+class HomeActivity : AppCompatActivity(), AgoraEventListener {
 
     companion object {
         const val TAG = "HomeActivity"
@@ -27,6 +31,12 @@ class HomeActivity : AppCompatActivity() {
     private val viewModel: HomeViewModel by viewModels()
     private val onlineUsersAdapter = OnlineUsersAdapter()
 
+    @Inject
+    lateinit var rtmClient: RtmClient
+
+    @Inject
+    lateinit var rtmEventListener: RTMEventListener
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -38,8 +48,11 @@ class HomeActivity : AppCompatActivity() {
             currentUser = auth.currentUser!!
         }
 
+        rtmClient.login(null, viewModel.getUsername(), null)
+
         initObservers()
         setupViews()
+        setupListeners()
     }
 
     override fun onStart() {
@@ -65,10 +78,18 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupListeners() {
+        rtmEventListener.registerEventListener(this)
+    }
+
     private fun initObservers() {
         viewModel.onlineUsers.observe(this) {
             Log.d(TAG, it.toString())
             onlineUsersAdapter.updateOnlineUsers(it)
         }
+    }
+
+    override fun onMessageReceived(message: RtmMessage?, p1: String?) {
+        Log.d(TAG, message?.text.toString())
     }
 }
