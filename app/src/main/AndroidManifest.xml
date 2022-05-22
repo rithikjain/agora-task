@@ -20,6 +20,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AgoraTask">
         <activity
+            android:name=".ui.videocall.VideoCallActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.home.HomeActivity"
             android:exported="false" />
         <activity

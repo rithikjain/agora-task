@@ -3,7 +3,10 @@ package `in`.rithikjain.agoratask.ui.home
 import `in`.rithikjain.agoratask.agora.AgoraEventListener
 import `in`.rithikjain.agoratask.agora.EngineEventListener
 import `in`.rithikjain.agoratask.databinding.ActivityHomeBinding
+import `in`.rithikjain.agoratask.ui.videocall.VideoCallActivity
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -11,6 +14,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.fondesa.kpermissions.extension.permissionsBuilder
+import com.fondesa.kpermissions.extension.send
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -62,6 +67,7 @@ class HomeActivity : AppCompatActivity(), AgoraEventListener {
         initObservers()
         setupViews()
         setupListeners()
+        requestPermissions()
     }
 
     override fun onStart() {
@@ -102,6 +108,22 @@ class HomeActivity : AppCompatActivity(), AgoraEventListener {
         }
     }
 
+    private fun requestPermissions() {
+        permissionsBuilder(Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO).build()
+            .send {
+
+            }
+    }
+
+    private fun startVideoCall(yourUsername: String, remoteUsername: String, channelName: String) {
+        val intent = Intent(this, VideoCallActivity::class.java)
+        intent.putExtra("yourUsername", yourUsername)
+        intent.putExtra("remoteUsername", remoteUsername)
+        intent.putExtra("channelName", channelName)
+
+        startActivity(intent)
+    }
+
     private fun callUser(username: String) {
         val invitation = rtmCallManager.createLocalInvitation(username)
         invitation.channelId = username
@@ -133,6 +155,8 @@ class HomeActivity : AppCompatActivity(), AgoraEventListener {
                 .setPositiveButton("Answer") { dialog, _ ->
                     rtmCallManager.acceptRemoteInvitation(p0, null)
                     dialog.dismiss()
+
+                    startVideoCall(viewModel.getUsername(), p0!!.callerId, p0.channelId)
                 }
                 .setCancelable(false)
                 .show()
@@ -150,6 +174,8 @@ class HomeActivity : AppCompatActivity(), AgoraEventListener {
         runOnUiThread {
             ringingDialog?.dismiss()
             Toast.makeText(this, "Call Accepted", Toast.LENGTH_SHORT).show()
+
+            startVideoCall(viewModel.getUsername(), p0!!.calleeId, p0.channelId)
         }
     }
 

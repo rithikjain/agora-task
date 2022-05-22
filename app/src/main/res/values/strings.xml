@@ -12,4 +12,6 @@
     <string name="username">Username</string>
     <string name="online_users">These are the online users:</string>
     <string name="ring">Ring</string>
+    <string name="exit">Exit</string>
+    <string name="you">You</string>
 </resources>

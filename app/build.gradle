@@ -60,6 +60,9 @@ dependencies {
     implementation "androidx.fragment:fragment-ktx:1.4.1"
 
     implementation 'io.agora.rtm:rtm-sdk:1.4.10'
+    implementation 'io.agora.rtc:full-sdk:3.7.0.1'
+
+    implementation 'com.github.fondesa:kpermissions:3.3.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
