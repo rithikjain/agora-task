@@ -41,6 +41,7 @@ class UserRepository(
 
     fun getOnlineUsers(): LiveData<List<User>> {
         val onlineUsers: MutableLiveData<List<User>> = MutableLiveData()
+        val currUID = getUIDSharedPref()
 
         val usersListeners = object : ValueEventListener {
             val users = mutableListOf<User>()
@@ -50,7 +51,7 @@ class UserRepository(
 
                 for (data in dataSnapshot.children) {
                     val user = data.getValue(User::class.java)
-                    if (user!!.online) users.add(user)
+                    if (user!!.online && user.uid != currUID) users.add(user)
                 }
 
                 onlineUsers.postValue(users)
