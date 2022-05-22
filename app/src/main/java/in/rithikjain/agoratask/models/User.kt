@@ -7,5 +7,7 @@ data class User(
     val uid: String = "",
     val username: String = "",
     val email: String = "",
-    val isOnline: Boolean = false
+    val isOnline: Boolean = false,
+    val createdAt: Long = System.currentTimeMillis(),
+    val lastOnline: Long = System.currentTimeMillis(),
 )

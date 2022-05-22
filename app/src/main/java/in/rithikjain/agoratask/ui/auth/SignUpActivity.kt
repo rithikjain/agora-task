@@ -75,7 +75,7 @@ class SignUpActivity : AppCompatActivity() {
                     Log.d(TAG, "createUserWithEmail:success")
                     val currUser = auth.currentUser
 
-                    val user = User(currUser!!.uid, username, email, false)
+                    val user = User(currUser!!.uid, username, email, true)
                     userRepo.saveUser(user)
 
                     navigateToHomeScreen()
