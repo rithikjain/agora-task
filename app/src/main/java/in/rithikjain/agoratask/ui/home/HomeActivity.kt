@@ -3,6 +3,7 @@ package `in`.rithikjain.agoratask.ui.home
 import `in`.rithikjain.agoratask.agora.AgoraEventListener
 import `in`.rithikjain.agoratask.agora.EngineEventListener
 import `in`.rithikjain.agoratask.databinding.ActivityHomeBinding
+import `in`.rithikjain.agoratask.ui.auth.SignInActivity
 import `in`.rithikjain.agoratask.ui.videocall.VideoCallActivity
 import android.Manifest
 import android.annotation.SuppressLint
@@ -99,6 +100,11 @@ class HomeActivity : AppCompatActivity(), AgoraEventListener {
 
     private fun setupListeners() {
         engineEventListener.registerEventListener(this)
+
+        binding.agoraLogoImageView.setOnLongClickListener {
+            logOut()
+            return@setOnLongClickListener true
+        }
     }
 
     private fun initObservers() {
@@ -106,6 +112,14 @@ class HomeActivity : AppCompatActivity(), AgoraEventListener {
             Log.d(TAG, it.toString())
             onlineUsersAdapter.updateOnlineUsers(it)
         }
+    }
+
+    private fun logOut() {
+        Firebase.auth.signOut()
+        Toast.makeText(this, "Logged Out!", Toast.LENGTH_SHORT).show()
+        finish()
+        val intent = Intent(this, SignInActivity::class.java)
+        startActivity(intent)
     }
 
     private fun requestPermissions() {
