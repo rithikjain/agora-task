@@ -5,11 +5,13 @@ import `in`.rithikjain.agoratask.agora.EngineEventListener
 import `in`.rithikjain.agoratask.databinding.ActivityHomeBinding
 import `in`.rithikjain.agoratask.ui.auth.SignInActivity
 import `in`.rithikjain.agoratask.ui.videocall.VideoCallActivity
+import `in`.rithikjain.agoratask.utils.Resource
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -63,7 +65,8 @@ class HomeActivity : AppCompatActivity(), AgoraEventListener {
             currentUser = auth.currentUser!!
         }
 
-        rtmClient.login(null, viewModel.getUsername(), null)
+        startLoading()
+        viewModel.getRTMToken()
 
         initObservers()
         setupViews()
@@ -83,6 +86,20 @@ class HomeActivity : AppCompatActivity(), AgoraEventListener {
         viewModel.setUserOffline(currentUser.uid)
     }
 
+    private fun startLoading() {
+        binding.onlineUsersRecyclerView.visibility = View.GONE
+        binding.greetingTextView.visibility = View.GONE
+        binding.onlineTextView.visibility = View.GONE
+        binding.homeProgressBar.visibility = View.VISIBLE
+    }
+
+    private fun stopLoading() {
+        binding.homeProgressBar.visibility = View.GONE
+        binding.onlineUsersRecyclerView.visibility = View.VISIBLE
+        binding.greetingTextView.visibility = View.VISIBLE
+        binding.onlineTextView.visibility = View.VISIBLE
+    }
+
     @SuppressLint("SetTextI18n")
     private fun setupViews() {
         binding.greetingTextView.text = "Hi, ${viewModel.getUsername()}!"
@@ -100,6 +117,21 @@ class HomeActivity : AppCompatActivity(), AgoraEventListener {
 
     private fun setupListeners() {
         engineEventListener.registerEventListener(this)
+
+        viewModel.rtmTokenLiveData.observe(this) {
+            when (it) {
+                is Resource.Success -> {
+                    stopLoading()
+                    rtmClient.login(it.data.toString(), viewModel.getUsername(), null)
+                    viewModel.setUserOnline(currentUser.uid)
+                    Log.d(TAG, it.data.toString())
+                }
+                is Resource.Error -> {
+                    stopLoading()
+                    Log.d(TAG, it.message.toString())
+                }
+            }
+        }
 
         binding.agoraLogoImageView.setOnLongClickListener {
             logOut()

@@ -1,6 +1,5 @@
 package `in`.rithikjain.agoratask.agora
 
-import android.util.Log
 import io.agora.rtm.*
 
 class EngineEventListener : RtmClientListener, RtmCallEventListener {
