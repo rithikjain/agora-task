@@ -1,5 +1,6 @@
 package `in`.rithikjain.agoratask.di
 
+import `in`.rithikjain.agoratask.R
 import `in`.rithikjain.agoratask.agora.EngineEventListener
 import `in`.rithikjain.agoratask.repository.UserRepository
 import `in`.rithikjain.agoratask.utils.PrefHelper
@@ -21,7 +22,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class AppModule {
 
-    private val agoraAppID = "aae56d6e855643289cf2f32d591b2210"
     private val database: DatabaseReference = Firebase.database.reference
 
     @Singleton
@@ -44,7 +44,11 @@ class AppModule {
         @ApplicationContext context: Context,
         engineEventListener: EngineEventListener
     ): RtmClient =
-        RtmClient.createInstance(context, agoraAppID, engineEventListener)
+        RtmClient.createInstance(
+            context,
+            context.getString(R.string.agora_app_id),
+            engineEventListener
+        )
 
     @Singleton
     @Provides

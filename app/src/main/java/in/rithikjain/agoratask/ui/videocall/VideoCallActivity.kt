@@ -1,5 +1,6 @@
 package `in`.rithikjain.agoratask.ui.videocall
 
+import `in`.rithikjain.agoratask.R
 import `in`.rithikjain.agoratask.databinding.ActivityVideoCallBinding
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -67,7 +68,7 @@ class VideoCallActivity : AppCompatActivity() {
     private fun initAndJoinChannel() {
         try {
             mRtcEngine =
-                RtcEngine.create(baseContext, "aae56d6e855643289cf2f32d591b2210", mRtcEventHandler)
+                RtcEngine.create(baseContext, getString(R.string.agora_app_id), mRtcEventHandler)
         } catch (e: Exception) {
         }
 
