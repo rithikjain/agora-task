@@ -118,21 +118,6 @@ class HomeActivity : AppCompatActivity(), AgoraEventListener {
     private fun setupListeners() {
         engineEventListener.registerEventListener(this)
 
-        viewModel.rtmTokenLiveData.observe(this) {
-            when (it) {
-                is Resource.Success -> {
-                    stopLoading()
-                    rtmClient.login(it.data.toString(), viewModel.getUsername(), null)
-                    viewModel.setUserOnline(currentUser.uid)
-                    Log.d(TAG, it.data.toString())
-                }
-                is Resource.Error -> {
-                    stopLoading()
-                    Log.d(TAG, it.message.toString())
-                }
-            }
-        }
-
         binding.agoraLogoImageView.setOnLongClickListener {
             logOut()
             return@setOnLongClickListener true
@@ -143,6 +128,22 @@ class HomeActivity : AppCompatActivity(), AgoraEventListener {
         viewModel.onlineUsers.observe(this) {
             Log.d(TAG, it.toString())
             onlineUsersAdapter.updateOnlineUsers(it)
+        }
+
+        viewModel.rtmTokenLiveData.observe(this) {
+            when (it) {
+                is Resource.Success -> {
+                    stopLoading()
+                    rtmClient.login(it.data.toString(), viewModel.getUsername(), null)
+                    viewModel.setUserOnline(currentUser.uid)
+                    Log.d(TAG, it.data.toString())
+                }
+                is Resource.Error -> {
+                    stopLoading()
+                    Toast.makeText(this, it.message.toString(), Toast.LENGTH_SHORT).show()
+                    Log.d(TAG, it.message.toString())
+                }
+            }
         }
     }
 
