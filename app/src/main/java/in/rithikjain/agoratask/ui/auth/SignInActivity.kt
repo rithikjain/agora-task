@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doAfterTextChanged
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -26,6 +27,9 @@ class SignInActivity : AppCompatActivity() {
 
     @Inject
     lateinit var userRepo: UserRepository
+
+    private var isEmailValid = false
+    private var isPasswordValid = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,7 +60,30 @@ class SignInActivity : AppCompatActivity() {
         binding.signInButton.setOnClickListener {
             val email = binding.emailTextInputLayout.editText!!.text.toString()
             val password = binding.passwordTextInputLayout.editText!!.text.toString()
-            signInUser(email, password)
+
+            if (isEmailValid && isPasswordValid) {
+                signInUser(email, password)
+            }
+        }
+
+        binding.emailTextInputLayout.editText?.doAfterTextChanged {
+            if (android.util.Patterns.EMAIL_ADDRESS.matcher(it.toString()).matches()) {
+                binding.emailTextInputLayout.error = null
+                isEmailValid = true
+            } else {
+                binding.emailTextInputLayout.error = "Enter a valid email"
+                isEmailValid = false
+            }
+        }
+
+        binding.passwordTextInputLayout.editText?.doAfterTextChanged {
+            if (it.toString().length < 6) {
+                binding.passwordTextInputLayout.error = "Password must be at least 5 chars"
+                isPasswordValid = false
+            } else {
+                binding.passwordTextInputLayout.error = null
+                isPasswordValid = true
+            }
         }
     }
 
