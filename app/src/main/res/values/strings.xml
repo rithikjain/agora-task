@@ -14,4 +14,6 @@
     <string name="ring">Ring</string>
     <string name="exit">Exit</string>
     <string name="you">You</string>
+    <string name="end">End</string>
+    <string name="exit_button">Exit Button</string>
 </resources>
