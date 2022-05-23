@@ -2,6 +2,9 @@
 
 # Agora Task
 
+### Link to the demo video
+[Demo Video](https://youtu.be/TfuZnQPjZgo)
+
 ### Features Implemented:
 - [x] Email Authentication with Firebase
 - [x] User creation in Firebase realtime database
